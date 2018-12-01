@@ -14,7 +14,7 @@ defmodule Tasks.Day1 do
     |> find_duplicate()
   end
 
-  defp find_duplicate(list, frequency \\ 0, seen \\ []) do
+  defp find_duplicate(list, frequency \\ 0, seen \\ MapSet.new()) do
     case update(frequency, list, seen) do
       {:yes, freq} -> freq
       {:no, freq, seen} -> find_duplicate(list, freq, seen)
@@ -25,10 +25,10 @@ defmodule Tasks.Day1 do
 
   defp update(freq, [head | tail], seen) do
     new_freq = freq + head
-    if Enum.member?(seen, new_freq) do
+    if MapSet.member?(seen, new_freq) do
       {:yes, new_freq}
     else
-      update(new_freq, tail, [new_freq | seen])
+      update(new_freq, tail, MapSet.put(seen, new_freq))
     end
   end
 end

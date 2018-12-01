@@ -20,7 +20,8 @@ defmodule Adventofcode do
 
   defp wait_for([pid | pids]) do
     receive do
-      {:result, ^pid, {day, part, result}} -> IO.puts("Day #{day} part #{part}: #{result}")
+      {:result, ^pid, {day, part, {time, result}}} ->
+        IO.puts("Day #{day} part #{part}: #{result} (#{time/1000} ms)")
     end
     wait_for(pids)
   end
@@ -36,9 +37,8 @@ defmodule Adventofcode do
     Code.ensure_loaded?(mod)
     if function_exported?(mod, fname, 1) do
       pid = spawn_link fn ->
-        res = apply(mod, fname, [
-          File.read!("input/Day#{day}-#{part}.txt")
-        ])
+        content = File.read!("input/Day#{day}-#{part}.txt")
+        res = :timer.tc(mod, fname, [content])
         send parent, {:result, self(), {day, part, res}}
       end
       pids ++ [pid]
