@@ -1,16 +1,15 @@
 defmodule Adventofcode do
-  @days 1
-  @days_list Enum.into(1..@days, [])
-
   def main([]) do
-    IO.puts("Running all days (#{inspect @days_list})")
-    Enum.flat_map(1..@days, &run/1)
+    days = find_days()
+    IO.puts("Running all days (#{days})")
+    Enum.flat_map(1..days, &run/1)
     |> wait_for()
   end
 
   def main(days) do
+    days = days |> Enum.map(&String.to_integer/1)
     IO.puts("Running days #{inspect days}")
-    Enum.flat_map(days |> Enum.map(&String.to_integer/1), &run/1)
+    Enum.flat_map(days, &run/1)
     |> wait_for()
   end
 
@@ -43,6 +42,15 @@ defmodule Adventofcode do
       pids ++ [pid]
     else
       pids
+    end
+  end
+
+  defp find_days(day \\ 1) do
+    mod = String.to_atom("Elixir.Tasks.Day#{day}")
+    if Code.ensure_loaded?(mod) do
+      find_days(day + 1)
+    else
+      day - 1
     end
   end
 end
