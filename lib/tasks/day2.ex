@@ -12,7 +12,10 @@ defmodule Tasks.Day2 do
     lines = String.split(input, ~r(\r?\n))
     ids = Enum.flat_map(lines, fn line ->
       Enum.filter(lines, fn line2 ->
-        line2 != line && chars_different(String.to_charlist(line), String.to_charlist(line2)) == 1
+        # This works because we only need to check if there's one different byte between the strings.
+        # So, we can check if the length is equal to the common prefix length + the common suffix length + 1
+        byte_size(line) -
+          (:binary.longest_common_prefix([line, line2]) + :binary.longest_common_suffix([line, line2])) == 1
       end)
     end) |> Enum.map(&String.to_charlist/1)
     without_differing_char(hd(ids), hd(tl ids), [])
@@ -25,12 +28,6 @@ defmodule Tasks.Day2 do
   end
   defp count_equal([ch | tail], count, map) do
     count_equal(tail, count, Map.update(map, ch, 1, & &1 + 1))
-  end
-
-  defp chars_different(a, b, acc \\ 0)
-  defp chars_different([], [], acc), do: acc
-  defp chars_different([a | tailA], [b | tailB], acc) do
-    chars_different(tailA, tailB, acc + if a == b do 0 else 1 end)
   end
 
   defp without_differing_char([], [], acc), do: acc
