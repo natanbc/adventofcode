@@ -20,7 +20,9 @@ defmodule Adventofcode do
   defp wait_for([pid | pids]) do
     receive do
       {:result, ^pid, {day, part, {time, result}}} ->
-        IO.puts("Day #{day} part #{part}: #{result} (#{time/1000} ms)")
+        IO.puts("Day #{day} part #{part}: #{result} (#{(time/1000) |> Float.round(3)} ms)")
+      {:result, ^pid, {day, part, {time, result, runs}}} ->
+        IO.puts("Day #{day} part #{part}: #{result} (#{(time/1000) |> Float.round(3)} ms, average over #{runs} runs)")
     end
     wait_for(pids)
   end
@@ -36,7 +38,16 @@ defmodule Adventofcode do
     if Code.ensure_loaded?(mod) && function_exported?(mod, fname, 1) do
       pid = spawn_link fn ->
         content = File.read!("input/Day#{day}.txt")
-        res = :timer.tc(mod, fname, [content])
+        runs = System.get_env("RUNS")
+        res = if runs && String.to_integer(runs) > 1 do
+          n = String.to_integer(runs)
+          {time, r} = Enum.map(1..n, fn _ ->
+            :timer.tc(mod, fname, [content])
+          end) |> Enum.reduce({0, nil}, fn {total, _}, {time, res} -> {total + time, res} end)
+          {time / n, r, n}
+        else
+          :timer.tc(mod, fname, [content])
+        end
         send parent, {:result, self(), {day, part, res}}
       end
       pids ++ [pid]
