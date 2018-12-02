@@ -34,10 +34,9 @@ defmodule Adventofcode do
     parent = self()
     mod = String.to_atom("Elixir.Tasks.Day#{day}")
     fname = String.to_atom("part#{part}")
-    Code.ensure_loaded?(mod)
-    if function_exported?(mod, fname, 1) do
+    if Code.ensure_loaded?(mod) && function_exported?(mod, fname, 1) do
       pid = spawn_link fn ->
-        content = File.read!("input/Day#{day}-#{part}.txt")
+        content = File.read!("input/Day#{day}.txt")
         res = :timer.tc(mod, fname, [content])
         send parent, {:result, self(), {day, part, res}}
       end
