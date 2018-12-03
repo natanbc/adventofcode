@@ -17,6 +17,8 @@ to run specific days.
 An average of the execution speed of each task can be calculated by providing a `RUNS` environment variable,
 with how many times to run each task.
 
+It's also possible to run a full benchmark with `escript adventofcode bench [days]`
+
 ## Examples
 
 ```
@@ -25,4 +27,8 @@ escript adventofcode 1 2
 
 ```
 RUNS=100 escript adventofcode 2
+```
+
+```
+escript adventofcode bench 1 2
 ```

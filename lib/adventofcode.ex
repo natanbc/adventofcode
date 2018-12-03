@@ -6,6 +6,14 @@ defmodule Adventofcode do
     |> wait_for()
   end
 
+  def main(["bench"]) do
+    bench(1..find_days())
+  end
+
+  def main(["bench" | days]) do
+   bench(days |> Enum.map(&String.to_integer/1))
+  end
+
   def main(days) do
     days = days |> Enum.map(&String.to_integer/1)
     IO.puts("Running days #{inspect days}")
@@ -14,6 +22,16 @@ defmodule Adventofcode do
   end
 
   def run_day(day), do: run(day) |> wait_for()
+
+  defp bench(days) do
+    days |> Enum.flat_map(fn day ->
+      content = File.read!("input/Day#{day}.txt")
+      mod = String.to_atom("Elixir.Tasks.Day#{day}")
+      [{"Day #{day} part 1", fn -> mod.part1(content) end}, {"Day #{day} part 2", fn -> mod.part2(content) end}]
+    end)
+    |> Map.new
+    |> Benchee.run(memory_time: 2, print: [fast_warning: false])
+  end
 
   defp wait_for([]), do: nil
 
