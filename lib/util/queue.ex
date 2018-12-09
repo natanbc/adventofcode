@@ -3,10 +3,8 @@ defmodule Util.Queue do
   @initial_r {:read, 0}
   @initial_w {:write, 0}
 
-  alias Util.Queue
-
   @opaque internal :: :ets.tab()
-  @type t :: %Queue{q: internal}
+  @type t :: %__MODULE__{q: internal}
   @type access :: :public | :protected | :private
   @type option :: access
                   | :named_table
@@ -24,17 +22,17 @@ defmodule Util.Queue do
     q = :ets.new(name, opts)
     :ets.insert(q, @initial_r)
     :ets.insert(q, @initial_w)
-    %Queue{q: q}
+    %__MODULE__{q: q}
   end
 
   @spec add(t, term()) :: boolean()
-  def add(%Queue{q: q}, element) do
+  def add(%__MODULE__{q: q}, element) do
     :ets.insert(q, {:ets.update_counter(q, :write, @update, @initial_w), element})
   end
 
   @spec peek(t) :: term() | nil
-  def peek(%Queue{q: q}) do
-    case size(q) do
+  def peek(%__MODULE__{q: q} = queue) do
+    case size(queue) do
       0 -> nil
       _ ->
         [{:read, i}] = :ets.lookup(q, :read)
@@ -45,8 +43,8 @@ defmodule Util.Queue do
   end
 
   @spec poll(t) :: term() | nil
-  def poll(%Queue{q: q}) do
-    case size(q) do
+  def poll(%__MODULE__{q: q} = queue) do
+    case size(queue) do
       0 -> nil
       _ ->
         i = :ets.update_counter(q, :read, @update, @initial_r)
@@ -56,7 +54,7 @@ defmodule Util.Queue do
   end
 
   @spec size(t) :: non_neg_integer()
-  def size(%Queue{q: q}) do
+  def size(%__MODULE__{q: q}) do
     :ets.info(q, :size) - 2
   end
 end
