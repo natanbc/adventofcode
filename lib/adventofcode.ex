@@ -38,9 +38,9 @@ defmodule Adventofcode do
   defp wait_for([pid | pids]) do
     receive do
       {:result, ^pid, {day, part, {time, result}}} ->
-        IO.puts("Day #{day} part #{part}: #{inspect result} (#{(time/1000) |> Float.round(3)} ms)")
+        IO.puts("Day #{day} part #{part}: #{result} (#{(time/1000) |> Float.round(3)} ms)")
       {:result, ^pid, {day, part, {time, result, runs}}} ->
-        IO.puts("Day #{day} part #{part}: #{inspect result} (#{(time/1000) |> Float.round(3)} ms, average over #{runs} runs)")
+        IO.puts("Day #{day} part #{part}: #{result} (#{(time/1000) |> Float.round(3)} ms, average over #{runs} runs)")
     end
     wait_for(pids)
   end
